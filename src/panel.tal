@@ -1,0 +1,75 @@
+( macros )
+~lib/macros.tal
+
+( devices )
+|00 @System [
+	&vector $2 &expansion $2 &wst $1 &rst $1 &metadata $2
+	&r $2 &g $2 &b $2 &debug $1 &state $1 ]
+|10 @Console [ &vector $2 &read $5 &type $1 &write $1 &error $1 ]
+|20 @Screen [
+	&vector $2 &width $2 &height $2 &auto $2 &x $2 &y $2
+	&addr $2 &pixel $1 &sprite $1 ]
+|80 @Controller [ &vector $2 &button $1 &key $1 ]
+
+( constants )
+|0080 @SCREEN-SIZE
+|81 @ON   |83 @OFF
+|80 @BIT7   |40 @BIT6   |20 @BIT5   |10 @BIT4
+|08 @BIT3   |04 @BIT2   |02 @BIT1   |01 @BIT0
+
+( uninitialized data )
+|0000
+	@x $1
+
+( entry point )
+|0100 @Main ( -> )
+	( resolution )
+	;SCREEN-SIZE DUP2
+	#0002 MUL2 .Screen/width DEO2
+	.Screen/height DEO2
+
+	( theme )
+	#0d64 .System/r DEO2
+	#01a4 .System/g DEO2
+	#02c4 .System/b DEO2
+
+	( setup )	
+	#85 .x STZ
+	#0000 #0000 set-position
+	{ "BYTE \s "85: \0 } STH2r draw-string
+	draw-panel
+	
+	BRK
+
+( routines )
+~lib/routines.tal
+
+@draw-panel ( -- )
+	.ON .OFF
+	DUP2 .x LDZ .BIT7 AND #00 NEQ JMP SWP POP
+		#0020 #0020 draw-led
+	DUP2 .x LDZ .BIT6 AND #00 NEQ JMP SWP POP
+		#0028 #0020 draw-led
+	DUP2 .x LDZ .BIT5 AND #00 NEQ JMP SWP POP
+		#0030 #0020 draw-led
+	DUP2 .x LDZ .BIT4 AND #00 NEQ JMP SWP POP
+		#0038 #0020 draw-led
+	DUP2 .x LDZ .BIT3 AND #00 NEQ JMP SWP POP
+		#0040 #0020 draw-led
+	DUP2 .x LDZ .BIT2 AND #00 NEQ JMP SWP POP
+		#0048 #0020 draw-led
+	DUP2 .x LDZ .BIT1 AND #00 NEQ JMP SWP POP
+		#0050 #0020 draw-led
+	.x LDZ .BIT0 AND #00 NEQ JMP SWP POP
+		#0058 #0020 !draw-led
+
+@draw-led ( state x* y*  )
+	STH2 STH2
+	;led STH2r STH2r draw-sprite
+	JMP2r
+
+( initialized data )
+~assets/sprites.tal
+~assets/font.tal
+
+( buffers )

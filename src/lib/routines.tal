@@ -1,0 +1,33 @@
+@print-string ( str* -- )
+	( char ) LDAk .Console/write DEO
+	( next? ) INC2 LDAk ?print-string
+	( clean* ) POP2
+	JMP2r
+
+@draw-string ( text* -- )
+	[ LIT2 15 -Screen/auto ] DEO
+	&>while ( -- )
+		LDAk #00 SWP DUP2
+		( addr ) #20 SUB #50 SFT2 ;font/glyphs ADD2 .Screen/addr DEO2
+		( move ) ;font ADD2 LDA #00 SWP .Screen/x DEI2 ADD2
+		( draw ) [ LIT2 01 -Screen/sprite ] DEOk DEO
+		.Screen/x DEO2
+		INC2 LDAk ?&>while
+	POP2 JMP2r
+
+@set-position ( x* y* -- )
+	( y* ) .Screen/y DEO2
+	( x* ) .Screen/x DEO2
+	JMP2r
+
+@draw-sprite ( color sprite* x* y* -- )
+	( y* ) .Screen/y DEO2
+	( x* ) .Screen/x DEO2
+	( sprite* ) .Screen/addr DEO2
+	( color ) .Screen/sprite DEO
+	JMP2r
+	
+@clear-screen ( color -- )
+	( x* y* ) #0000 DUP2 set-position
+	( color ) #80 ORA .Screen/pixel DEO
+	JMP2r
